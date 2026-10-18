@@ -102,6 +102,9 @@ Initially, I used Claude to break down the concept of what we're gonna do today.
 
 For me, it's on Part 2: "Based on my skeletons in pawpal_system.py, how should the Scheduler retrieve all tasks from the Owner's pets?" My AI assistant inside VSCode helps me to add more info on what should I need to make owners easy to navigate their pets' schedule
 
+The most effective features were having the assistant read my files directly and edit several files at once, such as adding recurrence, which touched `Task`, `Scheduler`, and the tests. Chat with files attached worked best for reviews: "what is missing from this skeleton?" and "how could this method be
+simplified?" gave concrete, checkable answers. I used separate chat sessions for planning algorithms and for planning tests. That kept each conversation focused, and I could compare each assistant's answer with my own notes without earlier implementation details getting in the way.
+
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
@@ -199,9 +202,6 @@ string priorities with an Enum so unknown values can't slip in.
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
-AI is most useful when I treat its output as a draft to review. It gave me
-working code, but I had to check it: a bad paste caused an indentation
-error, the assistant offered more complex algorithms than I needed, and one
-test I asked for was a duplicate. Running the tests and the demo after each
-change, and asking whether the bug was in the test or the code, kept me in
-control of the design.
+
+Being the lead architect meant deciding what the system should do and treating the AI as a fast collaborator that proposes options. It could produce code quickly, but it did not know my priorities: it offered sweep-line conflict detection and per-date completion tracking, which were more than a household scheduler needs. I rejected those, kept the simple
+pairwise check, and used `itertools.combinations` only because it made the code easier to read. Each time, I ran the tests and the demo to verify the result. My main lesson is that clear design decisions made before coding (UML, then skeleton, then tests) let me judge AI output instead of just accepting it.

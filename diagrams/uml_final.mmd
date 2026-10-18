@@ -1,0 +1,51 @@
+classDiagram
+    class Task {
+        +String title
+        +int duration_minutes
+        +String priority
+        +String start_time
+        +String frequency
+        +bool completed
+        +date due_date
+        +mark_complete()
+        +edit(**changes)
+        +next_occurrence() Task
+    }
+
+    class Pet {
+        +String name
+        +String species
+        +int age
+        +List~Task~ tasks
+        +add_task(task)
+        +remove_task(task)
+    }
+
+    class Owner {
+        +String name
+        +int available_minutes
+        +List~Pet~ pets
+        +Dict preferences
+        +add_pet(pet)
+        +get_all_tasks() List~Task~
+    }
+
+    class Scheduler {
+        +Owner owner
+        +generate_plan() List~Task~
+        +sort_tasks() List~Task~
+        +sort_by_time() List~Task~
+        +filter_tasks(completed, pet_name) List~Task~
+        +detect_conflicts() List~Task~
+        +get_conflict_warnings() List~String~
+        +explain_plan() String
+        +mark_task_complete(task) Task
+        -_is_due(task) bool
+        -_tasks_overlap(first, second) bool
+        -_minutes_after_midnight(start_time) int
+    }
+
+    Owner "1" --> "0..*" Pet : has
+    Pet "1" --> "0..*" Task : has
+    Scheduler ..> Owner : reads pets and tasks through
+    Task ..> Task : next_occurrence() creates a copy

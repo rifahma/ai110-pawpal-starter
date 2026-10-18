@@ -22,6 +22,15 @@ Your final app should:
 - Display the plan clearly (and ideally explain the reasoning)
 - Include tests for the most important scheduling behaviors
 
+## Features
+- **Multi-pet management:** an owner can have several pets, and the Scheduler works across all of them through `Owner.get_all_tasks()`.
+- **Priority-based planning:** tasks are ordered high, medium, low (shorter first on ties) and fitted into the owner's available minutes.
+- **Sorting by time:** tasks are shown in clock order using minutes after midnight, with untimed tasks last.
+- **Filtering:** view tasks by pet name, completion status, or both.
+- **Conflict warnings:** overlapping tasks, within one pet or across pets, produce a readable warning. Back-to-back tasks are allowed, and invalid times return a warning instead of crashing.
+- **Recurring tasks:** completing a daily or weekly task creates the next occurrence (+1 or +7 days with `timedelta`). Future-dated tasks stay out of today's plan.
+- **Plan explanation:** `explain_plan()` summarizes what was chosen and how many minutes it uses.
+
 ## Implementation Summary
 PawPal+ is a pet care planner. An owner can add pets, give each pet care tasks (walks, feeding, medication, grooming), and generate a daily schedule that fits the owner's available time.
 
@@ -149,10 +158,61 @@ All 21 tests pass and they cover edge cases as well as happy paths, so I'm confi
 
 Describe your app in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+**Example workflow:**
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
+1. Enter the owner name and available minutes.
+2. Add a pet, for example Cookie the dog.
+3. Add tasks, such as a walk at 08:00 (30 min, high, daily) and feeding at 08:15 (10 min, high).
+4. Check the task table, which is sorted by time. A yellow warning shows that the walk and feeding overlap.
+5. Change the feeding to 08:30, and the warning turns into a green "No time conflicts found."
+6. Click **Generate schedule** to see the plan and its explanation.
+7. Mark the walk complete, and a new walk is created for tomorrow.
+
+**Scheduler behaviors shown:** sorting by time, filtering by pet and status, conflict warnings, daily recurrence, and a plan that respects available time.
+
+**Sample CLI output (`python main.py`):**
+
+```
+All tasks sorted by time:
+  08:00 - Morning walk
+  08:30 - Breakfast
+  12:00 - Training session
+  12:00 - Medication
+  12:10 - Bath
+  16:00 - Grooming
+  18:00 - Evening play
+  Flexible - Brush fur
+
+Cookie's tasks:
+  Evening play
+  Morning walk
+  Brush fur
+  Training session
+  Bath
+
+Pending tasks:
+  Evening play
+  Morning walk
+  Brush fur
+  Training session
+  Bath
+  Grooming
+  Medication
+
+Completed tasks:
+  Breakfast
+
+Luna's pending tasks:
+  Grooming
+
+Conflict check:
+  Medication
+
+Conflict check:
+  Warning: 'Training session' (Cookie, 12:00, 20 min) overlaps 'Bath' (Cookie, 12:10, 15 min) for pet Cookie.
+  Warning: 'Training session' (Cookie, 12:00, 20 min) overlaps 'Medication' (Luna, 12:00, 5 min) between pets Cookie and Luna.
+Completed: Morning walk. Next due: 2026-10-19
+Cookie now has 7 tasks
+```
+
+**Screenshot or video** *(optional)*: /workspaces/ai110-pawpal-starter/docs
