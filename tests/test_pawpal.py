@@ -84,7 +84,6 @@ def test_sort_by_time_orders_start_times_and_places_unscheduled_last() -> None:
         "Unscheduled",
     ]
 
-
 def test_filter_tasks_by_completion_status_and_pet_name() -> None:
     owner = Owner(name="Test", available_minutes=60)
     cookie = Pet(name="Cookie", species="dog", age=4)
@@ -129,3 +128,29 @@ def test_back_to_back_tasks_do_not_conflict() -> None:
         Task("Feed", 10, "high", start_time="08:30"),
     )
     assert scheduler.detect_conflicts() == []
+
+def test_back_to_back_tasks_do_not_conflict() -> None:
+    scheduler = make_scheduler(
+        60,
+        Task("Walk", 30, "high", start_time="08:00"),
+        Task("Feed", 10, "high", start_time="08:30"),
+    )
+    assert scheduler.detect_conflicts() == []
+
+
+def test_conflict_warnings_report_overlapping_tasks() -> None:
+    scheduler = make_scheduler(
+        60,
+        Task("Walk", 30, "high", start_time="08:00"),
+        Task("Feed", 10, "high", start_time="08:15"),
+    )
+    warnings = scheduler.get_conflict_warnings()
+    assert len(warnings) == 1
+    assert "Walk" in warnings[0] and "Feed" in warnings[0]
+
+
+def test_conflict_warnings_do_not_crash_on_bad_time() -> None:
+    scheduler = make_scheduler(60, Task("Walk", 30, "high", start_time="8am"))
+    warnings = scheduler.get_conflict_warnings()
+    assert len(warnings) == 1
+    assert "invalid" in warnings[0]
