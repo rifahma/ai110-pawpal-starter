@@ -90,26 +90,44 @@ Sample test output:
 ```
 rootdir: /workspaces/ai110-pawpal-starter
 plugins: anyio-4.15.1
-collected 15 items                                                                                                       
+collected 21 items                                                                                                       
 
-tests/test_pawpal.py::test_completing_daily_task_creates_task_for_tomorrow PASSED                                  [  6%]
-tests/test_pawpal.py::test_weekly_task_recurs_in_seven_days PASSED                                                 [ 13%]
-tests/test_pawpal.py::test_non_recurring_task_creates_no_new_task PASSED                                           [ 20%]
-tests/test_pawpal.py::test_task_mark_complete_changes_status PASSED                                                [ 26%]
-tests/test_pawpal.py::test_adding_task_increases_pet_task_count PASSED                                             [ 33%]
-tests/test_pawpal.py::test_sort_tasks_orders_by_priority PASSED                                                    [ 40%]
-tests/test_pawpal.py::test_sort_by_time_orders_start_times_and_places_unscheduled_last PASSED                      [ 46%]
-tests/test_pawpal.py::test_filter_tasks_by_completion_status_and_pet_name PASSED                                   [ 53%]
-tests/test_pawpal.py::test_plan_skips_completed_and_respects_time_limit PASSED                                     [ 60%]
-tests/test_pawpal.py::test_overlapping_tasks_are_conflicts_and_excluded PASSED                                     [ 66%]
-tests/test_pawpal.py::test_back_to_back_tasks_do_not_conflict PASSED                                               [ 73%]
-tests/test_pawpal.py::test_conflict_warnings_report_overlapping_tasks PASSED                                       [ 80%]
-tests/test_pawpal.py::test_conflict_warnings_do_not_crash_on_bad_time PASSED                                       [ 86%]
-tests/test_pawpal.py::test_conflict_warnings_report_overlaps_between_pets PASSED                                   [ 93%]
-tests/test_pawpal.py::test_conflict_warnings_handle_non_string_start_time PASSED                                   [100%]
+tests/test_pawpal.py::test_completing_daily_task_creates_task_for_tomorrow PASSED                                  [  4%]
+tests/test_pawpal.py::test_weekly_task_recurs_in_seven_days PASSED                                                 [  9%]
+tests/test_pawpal.py::test_non_recurring_task_creates_no_new_task PASSED                                           [ 14%]
+tests/test_pawpal.py::test_task_mark_complete_changes_status PASSED                                                [ 19%]
+tests/test_pawpal.py::test_adding_task_increases_pet_task_count PASSED                                             [ 23%]
+tests/test_pawpal.py::test_sort_tasks_orders_by_priority PASSED                                                    [ 28%]
+tests/test_pawpal.py::test_sort_by_time_orders_start_times_and_places_unscheduled_last PASSED                      [ 33%]
+tests/test_pawpal.py::test_filter_tasks_by_completion_status_and_pet_name PASSED                                   [ 38%]
+tests/test_pawpal.py::test_plan_skips_completed_and_respects_time_limit PASSED                                     [ 42%]
+tests/test_pawpal.py::test_overlapping_tasks_are_conflicts_and_excluded PASSED                                     [ 47%]
+tests/test_pawpal.py::test_back_to_back_tasks_do_not_conflict PASSED                                               [ 52%]
+tests/test_pawpal.py::test_conflict_warnings_report_overlapping_tasks PASSED                                       [ 57%]
+tests/test_pawpal.py::test_conflict_warnings_do_not_crash_on_bad_time PASSED                                       [ 61%]
+tests/test_pawpal.py::test_conflict_warnings_report_overlaps_between_pets PASSED                                   [ 66%]
+tests/test_pawpal.py::test_conflict_warnings_handle_non_string_start_time PASSED                                   [ 71%]
+tests/test_pawpal.py::test_sort_by_time_handles_non_zero_padded_times PASSED                                       [ 76%]
+tests/test_pawpal.py::test_sort_by_time_rejects_invalid_time PASSED                                                [ 80%]
+tests/test_pawpal.py::test_tasks_at_identical_time_are_flagged_as_conflicts PASSED                                 [ 85%]
+tests/test_pawpal.py::test_future_recurring_task_is_not_in_todays_plan PASSED                                      [ 90%]
+tests/test_pawpal.py::test_completing_a_task_twice_does_not_duplicate_it PASSED                                    [ 95%]
+tests/test_pawpal.py::test_completing_unowned_task_raises_error PASSED                                             [100%]
 
-=================================================== 15 passed in 0.05s ==================================================
+=================================================== 21 passed in 0.11s ===================================================
 ```
+**What the tests cover**
+
+- **Task and Pet basics:** marking a task complete, and adding a task to a pet.
+- **Sorting:** priority order, time order (including non-zero-padded times like `9:00`), and untimed tasks placed last.
+- **Filtering:** by completion status, by pet name (case-insensitive), and by both.
+- **Plan generation:** skips completed tasks and respects the owner's available minutes.
+- **Conflict detection:** overlapping tasks, identical start times, back-to-back tasks (not a conflict), warnings within one pet and across pets, and invalid start times returning a warning instead of crashing.
+- **Recurring tasks:** a daily task creates a copy due tomorrow, a weekly task one due in 7 days, non-recurring tasks create nothing, completing twice does not duplicate, tomorrow's copy stays out of today's plan, and completing a task that belongs to no pet raises an error.
+
+**Confidence Level: ⭐⭐⭐⭐ (4/5)**
+
+All 21 tests pass and they cover edge cases as well as happy paths, so I'm confident in the core scheduling logic. I held back one star because some cases are untested: unknown priority values, zero available minutes, a task fully inside another task's time slot, and the Streamlit UI itself.
 
 ## 📐 Smarter Scheduling
 
