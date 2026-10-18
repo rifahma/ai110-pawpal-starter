@@ -83,27 +83,42 @@ Selected 5 task(s), using 80 of 120 available minutes:
 # Run the full test suite:
 pytest
 
-# Run with coverage:
-pytest --cov
 ```
 
 Sample test output:
 
 ```
-================================================== test session starts ===================================================
-platform linux -- Python 3.14.2, pytest-9.1.1, pluggy-1.7.0
 rootdir: /workspaces/ai110-pawpal-starter
 plugins: anyio-4.15.1
-collected 11 items                                                                                                       
+collected 15 items                                                                                                       
 
-tests/test_pawpal.py ...........                                                                                   [100%]
+tests/test_pawpal.py::test_completing_daily_task_creates_task_for_tomorrow PASSED                                  [  6%]
+tests/test_pawpal.py::test_weekly_task_recurs_in_seven_days PASSED                                                 [ 13%]
+tests/test_pawpal.py::test_non_recurring_task_creates_no_new_task PASSED                                           [ 20%]
+tests/test_pawpal.py::test_task_mark_complete_changes_status PASSED                                                [ 26%]
+tests/test_pawpal.py::test_adding_task_increases_pet_task_count PASSED                                             [ 33%]
+tests/test_pawpal.py::test_sort_tasks_orders_by_priority PASSED                                                    [ 40%]
+tests/test_pawpal.py::test_sort_by_time_orders_start_times_and_places_unscheduled_last PASSED                      [ 46%]
+tests/test_pawpal.py::test_filter_tasks_by_completion_status_and_pet_name PASSED                                   [ 53%]
+tests/test_pawpal.py::test_plan_skips_completed_and_respects_time_limit PASSED                                     [ 60%]
+tests/test_pawpal.py::test_overlapping_tasks_are_conflicts_and_excluded PASSED                                     [ 66%]
+tests/test_pawpal.py::test_back_to_back_tasks_do_not_conflict PASSED                                               [ 73%]
+tests/test_pawpal.py::test_conflict_warnings_report_overlapping_tasks PASSED                                       [ 80%]
+tests/test_pawpal.py::test_conflict_warnings_do_not_crash_on_bad_time PASSED                                       [ 86%]
+tests/test_pawpal.py::test_conflict_warnings_report_overlaps_between_pets PASSED                                   [ 93%]
+tests/test_pawpal.py::test_conflict_warnings_handle_non_string_start_time PASSED                                   [100%]
 
-=================================================== 11 passed in 0.03s ===================================================
+=================================================== 15 passed in 0.05s ==================================================
 ```
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
+| Feature | Method(s) | Notes |
+|---------|-----------|-------|
+| Sorting | `Scheduler.sort_tasks()`, `Scheduler.sort_by_time()` | `sort_tasks()` orders by priority, then shorter duration, and is used to build the plan. `sort_by_time()` orders by start time (HH:MM), with untimed tasks last. |
+| Filtering | `Scheduler.filter_tasks()`, `Scheduler.generate_plan()` | `filter_tasks()` returns tasks by pet name and/or completion status. `generate_plan()` skips completed tasks, tasks not yet due, and tasks that don't fit in the available minutes. |
+| Conflict detection | `Scheduler.detect_conflicts()`, `Scheduler.get_conflict_warnings()` | Overlapping start times and durations are flagged, across the same pet or different pets. Warnings name both tasks and pets, and invalid times return a warning instead of crashing. Back-to-back tasks are allowed. |
+| Recurring tasks | `Task.next_occurrence()`, `Scheduler.mark_task_complete()` | Completing a daily or weekly task creates a new copy with `due_date` set using `timedelta` (+1 or +7 days) and adds it to the same pet. |
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|

@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
+from itertools import combinations
 
 
 @dataclass
@@ -202,19 +203,19 @@ class Scheduler:
                     continue
                 entries.append((pet, task))
 
-        for index, (pet_a, task_a) in enumerate(entries):
-            for pet_b, task_b in entries[index + 1 :]:
-                if self._tasks_overlap(task_a, task_b):
-                    if pet_a is pet_b:
-                        who = f"for pet {pet_a.name}"
-                    else:
-                        who = f"between pets {pet_a.name} and {pet_b.name}"
-                    warnings.append(
-                        f"Warning: '{task_a.title}' ({pet_a.name}, {task_a.start_time}, "
-                        f"{task_a.duration_minutes} min) overlaps '{task_b.title}' "
-                        f"({pet_b.name}, {task_b.start_time}, {task_b.duration_minutes} min) "
-                        f"{who}."
-                    )
+        for (pet_a, task_a), (pet_b, task_b) in combinations(entries, 2):
+            if not self._tasks_overlap(task_a, task_b):
+                continue
+            if pet_a is pet_b:
+                who = f"for pet {pet_a.name}"
+            else:
+                who = f"between pets {pet_a.name} and {pet_b.name}"
+            warnings.append(
+                f"Warning: '{task_a.title}' ({pet_a.name}, {task_a.start_time}, "
+                f"{task_a.duration_minutes} min) overlaps '{task_b.title}' "
+                f"({pet_b.name}, {task_b.start_time}, {task_b.duration_minutes} min) "
+                f"{who}."
+            )
         return warnings
 
     def explain_plan(self) -> str:

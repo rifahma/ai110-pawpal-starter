@@ -1,3 +1,4 @@
+from pawpal_system import Owner, Pet, Scheduler, Task
 import streamlit as st
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
@@ -38,38 +39,50 @@ At minimum, your system should:
 
 st.divider()
 
-st.subheader("Quick Demo Inputs (UI only)")
-owner_name = st.text_input("Owner name", value="Jordan")
+st.subheader("Quick Demo Inputs")
+
+if "owner" not in st.session_state:
+    st.session_state.owner = Owner(name="Jordan", available_minutes=120)
+owner = st.session_state.owner
+
+owner.name = st.text_input("Owner name", value=owner.name)
+
 pet_name = st.text_input("Pet name", value="Mochi")
 species = st.selectbox("Species", ["dog", "cat", "other"])
+age = st.number_input("Age", min_value=0, max_value=40, value=1)
+
+if st.button("Add pet"):
+    owner.add_pet(Pet(name=pet_name, species=species, age=int(age)))  # Owner.add_pet()
 
 st.markdown("### Tasks")
-st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
 
-if "tasks" not in st.session_state:
-    st.session_state.tasks = []
+if owner.pets:
+    pet_choice = st.selectbox("Task for which pet?", [p.name for p in owner.pets])
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    task_title = st.text_input("Task title", value="Morning walk")
-with col2:
-    duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
-with col3:
-    priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        task_title = st.text_input("Task title", value="Morning walk")
+    with col2:
+        duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
+    with col3:
+        priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
 
-if st.button("Add task"):
-    st.session_state.tasks.append(
-        {"title": task_title, "duration_minutes": int(duration), "priority": priority}
-    )
+    if st.button("Add task"):
+        pet = next(p for p in owner.pets if p.name == pet_choice)
+        pet.add_task(Task(task_title, int(duration), priority))  # Pet.add_task()
+else:
+    st.info("Add a pet first, then you can add tasks.")
 
-if st.session_state.tasks:
+tasks = owner.get_all_tasks()  # Owner.get_all_tasks()
+if tasks:
     st.write("Current tasks:")
-    st.table(st.session_state.tasks)
+    st.table([{"Task": t.title, "Minutes": t.duration_minutes, "Priority": t.priority} for t in tasks])
 else:
     st.info("No tasks yet. Add one above.")
 
 st.divider()
 
+# Leave this untouched
 st.subheader("Build Schedule")
 st.caption("This button should call your scheduling logic once you implement it.")
 
