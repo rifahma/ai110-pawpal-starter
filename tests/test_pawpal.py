@@ -1,4 +1,7 @@
 from datetime import date, timedelta
+
+import pytest
+
 from pawpal_system import Owner, Pet, Scheduler, Task
 
 # Test cases for the PawPal+ system
@@ -129,14 +132,6 @@ def test_back_to_back_tasks_do_not_conflict() -> None:
     )
     assert scheduler.detect_conflicts() == []
 
-def test_back_to_back_tasks_do_not_conflict() -> None:
-    scheduler = make_scheduler(
-        60,
-        Task("Walk", 30, "high", start_time="08:00"),
-        Task("Feed", 10, "high", start_time="08:30"),
-    )
-    assert scheduler.detect_conflicts() == []
-
 
 def test_conflict_warnings_report_overlapping_tasks() -> None:
     scheduler = make_scheduler(
@@ -180,3 +175,19 @@ def test_conflict_warnings_handle_non_string_start_time() -> None:
 
     assert len(warnings) == 1
     assert "invalid" in warnings[0]
+
+def test_sort_by_time_handles_non_zero_padded_times() -> None:
+    scheduler = make_scheduler(
+        60,
+        Task("Evening", 10, "low", start_time="18:00"),
+        Task("Morning", 10, "high", start_time="9:00"),
+    )
+
+    assert [task.title for task in scheduler.sort_by_time()] == ["Morning", "Evening"]
+
+
+def test_sort_by_time_rejects_invalid_time() -> None:
+    scheduler = make_scheduler(60, Task("Walk", 30, "high", start_time="8am"))
+
+    with pytest.raises(ValueError):
+        scheduler.sort_by_time()

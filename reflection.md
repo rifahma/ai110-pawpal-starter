@@ -154,6 +154,11 @@ Selected 5 task(s), using 80 of 120 available minutes:
 - Grooming (20 min, medium priority)
 - Evening play (15 min, low priority)
 
+While planning tests, I found that `sort_by_time()` compared start times as
+strings, so "9:00" would sort after "18:00". I fixed it by sorting on minutes
+after midnight, reusing `_minutes_after_midnight()`, and added a test with a
+non-zero-padded time. Invalid times now raise a clear `ValueError`.
+
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?

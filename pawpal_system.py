@@ -148,10 +148,15 @@ class Scheduler:
         )
 
     def sort_by_time(self) -> list[Task]:
-        """Sort all pets' tasks by start time, placing unscheduled tasks last."""
+        """Sort tasks by start time (as minutes after midnight), unscheduled last."""
         return sorted(
             self.owner.get_all_tasks(),
-            key=lambda task: (task.start_time is None, task.start_time or ""),
+            key=lambda task: (
+                task.start_time is None,
+                0
+                if task.start_time is None
+                else self._minutes_after_midnight(task.start_time),
+            ),
         )
 
     def filter_tasks(
