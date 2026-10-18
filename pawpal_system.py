@@ -183,6 +183,40 @@ class Scheduler:
 
         return [task for task in tasks if id(task) in conflicts]
 
+    def get_conflict_warnings(self) -> list[str]:
+        """Return a warning message for each pair of overlapping tasks."""
+        warnings: list[str] = []
+        entries: list[tuple[Pet, Task]] = []
+
+        for pet in self.owner.pets:
+            for task in pet.tasks:
+                if task.completed or task.start_time is None or not self._is_due(task):
+                    continue
+                try:
+                    self._minutes_after_midnight(task.start_time)
+                except (TypeError, ValueError):
+                    warnings.append(
+                        f"Warning: '{task.title}' for {pet.name} has an invalid "
+                        f"start time ({task.start_time!r}) and was not checked."
+                    )
+                    continue
+                entries.append((pet, task))
+
+        for index, (pet_a, task_a) in enumerate(entries):
+            for pet_b, task_b in entries[index + 1 :]:
+                if self._tasks_overlap(task_a, task_b):
+                    if pet_a is pet_b:
+                        who = f"for pet {pet_a.name}"
+                    else:
+                        who = f"between pets {pet_a.name} and {pet_b.name}"
+                    warnings.append(
+                        f"Warning: '{task_a.title}' ({pet_a.name}, {task_a.start_time}, "
+                        f"{task_a.duration_minutes} min) overlaps '{task_b.title}' "
+                        f"({pet_b.name}, {task_b.start_time}, {task_b.duration_minutes} min) "
+                        f"{who}."
+                    )
+        return warnings
+
     def explain_plan(self) -> str:
         """Summarize the selected tasks and time usage."""
         plan = self.generate_plan()

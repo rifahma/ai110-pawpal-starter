@@ -18,6 +18,8 @@ def main() -> None:
     luna.add_task(Task("Medication", 5, "high", start_time="12:00", frequency="weekly"))
     luna.add_task(Task("Breakfast", 10, "high", start_time="08:30", frequency="daily"))
     cookie.add_task(Task("Brush fur", 10, "low"))  # no start time
+    cookie.add_task(Task("Training session", 20, "medium", start_time="12:00"))  # clashes with Luna's Medication (12:00)
+    cookie.add_task(Task("Bath", 15, "low", start_time="12:10"))  # clashes with Training session (same pet)
 
     # Mark one task complete so the status filters have something to show
     luna.tasks[2].mark_complete()  # Breakfast
@@ -43,6 +45,16 @@ def main() -> None:
     print("\nLuna's pending tasks:")
     for task in scheduler.filter_tasks(completed=False, pet_name="Luna"):
         print(f"  {task.title}")
+
+        print("\nConflict check:")
+    
+    # Check for conflicts and print warnings
+    warnings = scheduler.get_conflict_warnings()
+    if warnings:
+        for message in warnings:
+            print(f"  {message}")
+    else:
+        print("  No conflicts found.")
 
     # Demonstrate the mark_task_complete method
     walk = Task("Morning walk", 30, "high", start_time="08:00", frequency="daily")

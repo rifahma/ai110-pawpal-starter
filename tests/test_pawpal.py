@@ -154,3 +154,29 @@ def test_conflict_warnings_do_not_crash_on_bad_time() -> None:
     warnings = scheduler.get_conflict_warnings()
     assert len(warnings) == 1
     assert "invalid" in warnings[0]
+
+
+def test_conflict_warnings_report_overlaps_between_pets() -> None:
+    owner = Owner("Test", 60)
+    cookie = Pet("Cookie", "dog", 4)
+    luna = Pet("Luna", "cat", 2)
+    cookie.add_task(Task("Walk", 30, "high", start_time="08:00"))
+    luna.add_task(Task("Feeding", 10, "high", start_time="08:15"))
+    owner.add_pet(cookie)
+    owner.add_pet(luna)
+
+    warnings = Scheduler(owner).get_conflict_warnings()
+
+    assert len(warnings) == 1
+    assert "Cookie" in warnings[0]
+    assert "Luna" in warnings[0]
+    assert "between pets" in warnings[0]
+
+
+def test_conflict_warnings_handle_non_string_start_time() -> None:
+    scheduler = make_scheduler(60, Task("Walk", 30, "high", start_time=800))
+
+    warnings = scheduler.get_conflict_warnings()
+
+    assert len(warnings) == 1
+    assert "invalid" in warnings[0]
