@@ -164,6 +164,14 @@ non-zero-padded time. Invalid times now raise a clear `ValueError`.
 - How confident are you that your scheduler works correctly?
 - What edge cases would you test next if you had more time?
 
+I'm fairly confident (4 out of 5) that the scheduler works correctly. All 21
+tests pass, and they cover edge cases as well as normal use: identical and
+overlapping start times, back-to-back tasks, invalid times, recurring tasks
+completed twice, and tomorrow's copy of a task staying out of today's plan.
+
+Edge cases I would test next: unknown priority values like "urgent", zero
+available minutes, a task fully contained inside another task's time slot,
+and owners with no pets. I also haven't tested the Streamlit UI automatically.
 ---
 
 ## 5. Reflection
@@ -171,12 +179,29 @@ non-zero-padded time. Invalid times now raise a clear `ValueError`.
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+I'm most satisfied with building the system in layers. I designed the UML,
+wrote a skeleton, implemented the logic, and checked it with a CLI demo and
+tests before touching the Streamlit UI. Because the backend was already
+verified, connecting it to the UI was straightforward. I'm also happy with
+the recurring-task feature, which creates the next occurrence with
+`timedelta` and keeps it out of today's plan until it is due.
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+I would let tasks know which pet they belong to, for example with a
+`pet_name` field. Right now `main.py` and the UI have to rebuild that link
+by hand. I would also resolve conflicts instead of only reporting them, so
+the higher-priority task stays in the plan. Finally, I would use the
+owner's `preferences`, which are stored but not used yet, and replace the
+string priorities with an Enum so unknown values can't slip in.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
-
+AI is most useful when I treat its output as a draft to review. It gave me
+working code, but I had to check it: a bad paste caused an indentation
+error, the assistant offered more complex algorithms than I needed, and one
+test I asked for was a duplicate. Running the tests and the demo after each
+change, and asking whether the bug was in the test or the code, kept me in
+control of the design.
