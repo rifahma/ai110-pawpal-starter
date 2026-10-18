@@ -44,6 +44,15 @@ def main() -> None:
     for task in scheduler.filter_tasks(completed=False, pet_name="Luna"):
         print(f"  {task.title}")
 
+    # Demonstrate the mark_task_complete method
+    walk = Task("Morning walk", 30, "high", start_time="08:00", frequency="daily")
+    cookie.add_task(walk)
+
+    scheduler = Scheduler(owner)
+    new_task = scheduler.mark_task_complete(walk)
+    print(f"Completed: {walk.title}. Next due: {new_task.due_date}")
+    print("Cookie now has", len(cookie.tasks), "tasks")
+
 
 if __name__ == "__main__":
     main()
