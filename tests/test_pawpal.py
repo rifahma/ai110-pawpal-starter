@@ -191,3 +191,54 @@ def test_sort_by_time_rejects_invalid_time() -> None:
 
     with pytest.raises(ValueError):
         scheduler.sort_by_time()
+
+
+def test_tasks_at_identical_time_are_flagged_as_conflicts() -> None:
+    # Two tasks with the exact same start time must be detected.
+    scheduler = make_scheduler(
+        60,
+        Task("Walk", 30, "high", start_time="08:00"),
+        Task("Feed", 10, "high", start_time="08:00"),
+    )
+
+    assert len(scheduler.detect_conflicts()) == 2
+    assert len(scheduler.get_conflict_warnings()) == 1
+
+
+def test_future_recurring_task_is_not_in_todays_plan() -> None:
+    # The copy created for tomorrow must not appear in today's plan.
+    owner = Owner("Test", 60)
+    pet = Pet("Cookie", "dog", 4)
+    owner.add_pet(pet)
+    walk = Task("Walk", 30, "high", start_time="08:00", frequency="daily")
+    pet.add_task(walk)
+    scheduler = Scheduler(owner)
+
+    tomorrows_walk = scheduler.mark_task_complete(walk)
+
+    assert tomorrows_walk not in scheduler.generate_plan()
+
+
+def test_completing_a_task_twice_does_not_duplicate_it() -> None:
+    # A second completion must not create another recurring copy.
+    owner = Owner("Test", 60)
+    pet = Pet("Cookie", "dog", 4)
+    owner.add_pet(pet)
+    walk = Task("Walk", 30, "high", frequency="daily")
+    pet.add_task(walk)
+    scheduler = Scheduler(owner)
+
+    scheduler.mark_task_complete(walk)
+    scheduler.mark_task_complete(walk)
+
+    assert len(pet.tasks) == 2
+
+
+def test_completing_unowned_task_raises_error() -> None:
+    # A task that belongs to no pet should raise a clear error.
+    owner = Owner("Test", 60)
+    owner.add_pet(Pet("Cookie", "dog", 4))
+    stray = Task("Stray", 10, "low", frequency="daily")
+
+    with pytest.raises(ValueError):
+        Scheduler(owner).mark_task_complete(stray)
